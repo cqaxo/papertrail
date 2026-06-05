@@ -1,3 +1,7 @@
 langchain-community
 langchain-text-splitters
 pypdf
+langchain-huggingface
+sentence-transformers
+langchain-chroma
+chromadb
