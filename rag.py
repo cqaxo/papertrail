@@ -5,7 +5,7 @@ from ingest import retrieve
 # Initialize the Ollama language model from environment variable or default to "llama3.1:8b"
 llm = ChatOllama(model=os.getenv("OLLAMA_MODEL", "llama3.1:8b"))
 
-def answer(query, k=4):
+def answer(query, k=6):
     """Answer a query using the retrieved chunks."""
     retrieved_chunks = retrieve(query, k=k)
     context = "\n\n".join([chunk.page_content for chunk in retrieved_chunks])
@@ -17,7 +17,7 @@ def answer(query, k=4):
     Question: {query}"""
     response = llm.invoke(prompt)
 
-    return response.content
+    return response.content, retrieved_chunks
 
 if __name__ == "__main__":
     response = answer("Does this document contain words written in latin?")
