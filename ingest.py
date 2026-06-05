@@ -48,7 +48,7 @@ def load_vector_store(persist_directory="chroma_db"):
 
     return vector_store
 
-def retrieve(query, k=4):
+def retrieve(query, k=6):
     """Retrieve the top-k most relevant chunks for a query."""
     vector_store = load_vector_store()
     results = vector_store.similarity_search(query, k=k)
