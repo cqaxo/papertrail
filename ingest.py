@@ -3,6 +3,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
+from functools import lru_cache
 
 
 # Load documents from the specified directory and chunk them into
@@ -24,6 +25,7 @@ def chunk_documents(docs, chunk_size=1000, chunk_overlap=150):
     return chunked_documents
 
 # Get the embedding model: used for both building and querying the store
+@lru_cache(maxsize=1)
 def get_embeddings():
     """The embedding model: used for both building and querying the store."""
 
@@ -38,6 +40,7 @@ def build_vector_store(chunks, persist_directory="chroma_db"):
     return vector_store
 
 # Load the vector store from the specified directory
+@lru_cache(maxsize=1)
 def load_vector_store(persist_directory="chroma_db"):
     """Load the existing vector store from disk."""
     embeddings = get_embeddings()
