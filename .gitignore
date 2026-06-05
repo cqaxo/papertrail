@@ -1,0 +1,15 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Secrets
+.env
+
+# Generated vector directory
+chroma_db/
+
+# PDFs
+data/*.pdf
