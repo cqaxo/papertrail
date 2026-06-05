@@ -23,25 +23,40 @@ def chunk_documents(docs, chunk_size=1000, chunk_overlap=150):
 
     return chunked_documents
 
+# Get the embedding model: used for both building and querying the store
+def get_embeddings():
+    """The embedding model: used for both building and querying the store."""
+
+    return HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
 # Build a vector store from the chunked documents
 def build_vector_store(chunks, persist_directory="chroma_db"):
     """Build a vector store from the chunked documents."""
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embeddings = get_embeddings()
     vector_store = Chroma.from_documents(documents=chunks, embedding=embeddings, persist_directory=persist_directory)
 
     return vector_store
 
+# Load the vector store from the specified directory
+def load_vector_store(persist_directory="chroma_db"):
+    """Load the existing vector store from disk."""
+    embeddings = get_embeddings()
+    vector_store = Chroma(persist_directory=persist_directory, embedding_function=embeddings)
+
+    return vector_store
+
+def retrieve(query, k=4):
+    """Retrieve the top-k most relevant chunks for a query."""
+    vector_store = load_vector_store()
+    results = vector_store.similarity_search(query, k=k)
+
+    return results
+
 # Main
 if __name__ == "__main__":
     documents = load_documents()
-    print(f"Loaded {len(documents)} documents.")
-    print(documents[0].page_content[:200])
-    print(documents[0].metadata)
     chunked_documents = chunk_documents(documents)
-    print(f"Chunked into {len(chunked_documents)} pieces.")
-    print(chunked_documents[0].page_content[:200])
     vector_store = build_vector_store(chunked_documents)
-    vector_list =vector_store.similarity_search("What does the heading of this document say?")
-    print(f"Found {len(vector_list)} similar chunks.")
-    print(vector_list[0].page_content)
-    
+    retrieved_results = retrieve("What does the heading of this document say?")
+    print(f"Retrieved {len(retrieved_results)} relevant chunks.")
+    print(retrieved_results[0].page_content)
