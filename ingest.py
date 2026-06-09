@@ -48,6 +48,7 @@ def load_vector_store(persist_directory="chroma_db"):
 
     return vector_store
 
+# Retrieve the top-k most relevant chunks for a query
 def retrieve(query, k=6):
     """Retrieve the top-k most relevant chunks for a query."""
     vector_store = load_vector_store()
