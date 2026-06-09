@@ -30,7 +30,11 @@ if query:
     show_message(user_msg)
 
     # 4. Add + show the assistant's answer
-    response, sources = answer(query)
+    try:
+        response, sources = answer(query)
+    except Exception:
+        response = "Sorry, there was an error generating the answer. Please try again."
+        sources = []
     assistant_msg = {"role": "assistant", "content": response, "sources": sources}
     st.session_state.messages.append(assistant_msg)
     show_message(assistant_msg)
