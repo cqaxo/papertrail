@@ -7,3 +7,4 @@ langchain-chroma
 chromadb
 langchain-ollama
 streamlit
+langchain-google-genai
