@@ -1,0 +1,119 @@
+[
+    {
+        "id": "q1",
+        "question": "What are the four functions of the AI RMF Core?",
+        "references": [
+            "the Core is composed of four functions",
+            "GOVERN, MAP, MEASURE, and MANAGE"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q2",
+        "question": "What are the characteristics of trustworthy AI?",
+        "references": [
+            "accountable and transparent, explainable and interpretable"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q3",
+        "question": "What does the GOVERN function do?",
+        "references": [
+            "cultivates and implements a culture of risk management"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q4",
+        "question": "What is the purpose of the MAP function?",
+        "references": [
+            "establishes the context to frame risks"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q5",
+        "question": "What does the MEASURE function use to analyze AI risk?",
+        "references": [
+            "employs quantitative, qualitative, or mixed-method tools"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q6",
+        "question": "What does the MANAGE function entail?",
+        "references": [
+            "allocating risk resources to mapped and measured risks"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q7",
+        "question": "How does the framework define risk?",
+        "references": [
+            "composite measure of an event"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q8",
+        "question": "Is the AI RMF mandatory, and what is it intended to be?",
+        "references": [
+            "voluntary, rights-preserving, non-sector-specific"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q9",
+        "question": "How does the AI RMF define an AI system?",
+        "references": [
+            "an engineered or machine-based system"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q10",
+        "question": "What three categories of AI bias does NIST identify?",
+        "references": [
+            "systemic, computational and statistical, and human-cognitive"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q11",
+        "question": "What does TEVV stand for?",
+        "references": [
+            "test, evaluation, verification, and validation"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q12",
+        "question": "Which trustworthiness characteristic is the necessary base condition for the others?",
+        "references": [
+            "a necessary condition of trustworthiness"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q13",
+        "question": "What should happen when an AI system presents unacceptable levels of risk?",
+        "references": [
+            "cease in a safe manner until risks can be sufficiently managed"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q14",
+        "question": "What is the capital of France?",
+        "references": [],
+        "answerable": false
+    },
+    {
+        "id": "q15",
+        "question": "What risk tiers does the EU AI Act define?",
+        "references": [],
+        "answerable": false
+    }
+]
