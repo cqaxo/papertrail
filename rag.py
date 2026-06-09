@@ -7,7 +7,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 def get_llm():
     gemini_key = os.getenv("GEMINI_API_KEY")
     if gemini_key:
-        return ChatGoogleGenerativeAI(model="gemini-2.5-flash", api_key=gemini_key)
+        return ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite", api_key=gemini_key)
     else:
         return ChatOllama(model=os.getenv("OLLAMA_MODEL", "llama3.1:8b"))
 
