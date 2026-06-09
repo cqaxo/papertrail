@@ -8,8 +8,6 @@ __pycache__/
 # Secrets
 .env
 
-# Generated vector directory
-chroma_db/
-
 # PDFs
 data/*.pdf
+!data/nist_ai_rmf.pdf
