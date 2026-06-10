@@ -21,7 +21,7 @@ The hosted demo is preloaded with the NIST AI Risk Management Framework, a publi
 
 - "What are the four core functions of the AI RMF?"
 - "What does the GOVERN function cover?"
-- "What are the characteristics of trustworthy AI?"
+- "How does the AI RMF define risk?"
 - "What is the capital of France?" (to see the honest refusal when the answer is not in the documents)
 
 > The hosted demo runs on a free API tier, so it may occasionally hit rate limits under heavy use, in which case it shows a brief notice and recovers shortly. Running locally uses Ollama instead, which has no rate limits and keeps everything on your machine.
@@ -77,7 +77,7 @@ Then start the app:
 streamlit run app.py
 ```
 
-The repo ships with a prebuilt vector store (the NIST demo corpus), so you can ask questions right away.
+The repo includes the NIST demo PDF, and the app builds its vector store automatically on first launch (a one-time step that takes a few moments). After that, questions answer immediately.
 
 ### Use your own documents
 
@@ -103,15 +103,24 @@ streamlit run app.py
 
 **One source of truth for embeddings.** The same `get_embeddings()` function is used to build and to query the store, so the two can never drift to different models (a mismatch would silently break similarity search). The embedding model and the store are cached so they load once per process rather than on every question.
 
+**Generated store, not committed.** The vector store is a build artifact, so it is generated from the source PDF on first run and kept out of version control rather than committed. This avoids shipping a binary database that drifts from the source and has to be rebuilt on every retrieval change.
+
 **Grounding and honest refusal.** The prompt instructs the model to answer only from the retrieved context and to reply with a fixed phrase, "I don't know based on the provided documents," when the answer is not there. The fixed phrase also makes the refusal easy to detect for evaluation later.
 
-## Limitations and roadmap
+## Evaluation and retrieval quality
 
-Retrieval quality is the main known limitation. The small embedding model matches largely on keyword overlap rather than deeper meaning, and naive page-based chunking can pull in boilerplate (titles, author blocks, page footers, reference lists) that crowds out the passage that actually answers a question. On clean, well-structured documents this works well; on messy ones, the right chunk is sometimes missed. This is documented openly because measuring and improving it is the point of Phase 2.
+PaperTrail includes a small, no-LLM evaluation harness (`evaluate.py` plus `eval_set.json`) that measures retrieval against a hand-labeled set of questions drawn from the NIST AI RMF. Each question carries verbatim reference phrases from its source passage; a retrieval counts as a hit when a retrieved chunk contains one. The harness reports Recall@3, Recall@6, and Mean Reciprocal Rank over the answerable questions, which turns retrieval changes into measured results rather than guesses.
 
-Phase 2 plans:
+Stripping repeated page boilerplate (running headers, page markers, the publication notice) before chunking is the change that earned its place:
 
-- An evaluation harness (for example RAGAS or DeepEval) to produce before-and-after numbers, so retrieval changes can be proven rather than asserted.
-- Better retrieval: stripping boilerplate before indexing, a stronger embedding model, and cross-encoder reranking of the top results.
-- Multi-tenant access control, so different users can be scoped to different documents.
-- Possibly replacing the LangChain wrappers with a direct retrieve-and-generate loop for transparency.
+| Metric   | Before | After |
+| -------- | ------ | ----- |
+| Recall@3 | 0.62   | 0.69  |
+| Recall@6 | 0.77   | 0.85  |
+| MRR      | 0.618  | 0.599 |
+
+Recall improved at both cutoffs. MRR dipped slightly as a couple of top hits shifted a position, an acceptable trade since Recall@6 is the cutoff actually fed to the model.
+
+Three other levers were tested with the same harness and rejected on the evidence: a stronger embedding model and a cross-encoder reranker were both washes on the aggregates, and uniformly smaller chunks regressed recall by fragmenting passages that already retrieved well.
+
+Known limitations: two questions still miss. One asks for the trustworthy-AI characteristics list, whose chunk competes with the seven individual characteristic subsections; the other sits just outside the retrieval window and needs a wider net. Diagnostics traced both to first-stage recall, which points to section-aware chunking and a larger evaluation set as the next steps, rather than further global tuning.
