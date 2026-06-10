@@ -1,4 +1,5 @@
 import re
+import os
 import pathlib
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -38,9 +39,9 @@ def load_documents(docs_dir="data"):
     for filepath in pathlib.Path(docs_dir).glob("*.pdf"):
         loader = PyPDFLoader(str(filepath))
         documents.extend(loader.load())
-        for doc in documents:
-            doc.page_content = strip_boilerplate(doc.page_content)
-
+    for doc in documents:
+        doc.page_content = strip_boilerplate(doc.page_content)
+        
     return documents
 
 
@@ -72,10 +73,12 @@ def build_vector_store(chunks, persist_directory="chroma_db"):
 # Load the vector store from the specified directory
 @lru_cache(maxsize=1)
 def load_vector_store(persist_directory="chroma_db"):
-    """Load the existing vector store from disk."""
+    # Build on first use if the store is not on disk yet (e.g. a fresh deploy).
+    if not (os.path.isdir(persist_directory) and os.listdir(persist_directory)):
+        return build_vector_store(chunk_documents(load_documents()))
     embeddings = get_embeddings()
     vector_store = Chroma(persist_directory=persist_directory, embedding_function=embeddings)
-
+    
     return vector_store
 
 
@@ -90,9 +93,6 @@ def retrieve(query, k=6):
 
 # Main
 if __name__ == "__main__":
-    documents = load_documents()
-    chunked_documents = chunk_documents(documents)
-    vector_store = build_vector_store(chunked_documents)
-    retrieved_results = retrieve("What does the heading of this document say?")
-    print(f"Retrieved {len(retrieved_results)} relevant chunks.")
-    print(retrieved_results[0].page_content)
+    chunks = chunk_documents(load_documents())
+    build_vector_store(chunks)
+    print(f"Built vector store with {len(chunks)} chunks.")

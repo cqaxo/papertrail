@@ -8,6 +8,9 @@ __pycache__/
 # Secrets
 .env
 
+# ChromaDB
+chroma_db/
+
 # PDFs
 data/*.pdf
 !data/nist_ai_rmf.pdf
