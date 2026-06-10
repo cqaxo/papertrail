@@ -106,13 +106,168 @@
     },
     {
         "id": "q14",
+        "question": "What does it mean for an AI system to be safe?",
+        "references": [
+            "lead to a state in which human life, health, property, or the environment is endangered"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q15",
+        "question": "What security concerns are common for AI systems?",
+        "references": [
+            "adversarial examples, data poisoning, and the exfiltration of models"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q16",
+        "question": "What is the relationship between accountability and transparency?",
+        "references": [
+            "Accountability presupposes transparency"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q17",
+        "question": "How does the framework distinguish explainability from interpretability?",
+        "references": [
+            "a representation of the mechanisms underlying"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q18",
+        "question": "How does the framework describe privacy?",
+        "references": [
+            "safeguard human autonomy, identity, and dignity"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q19",
+        "question": "What does fairness in AI involve?",
+        "references": [
+            "concerns for equality and equity",
+            "harmful bias and discrimination"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q20",
+        "question": "What is an AI RMF use-case profile?",
+        "references": [
+            "implementations of the AI RMF functions, categories, and subcategories"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q21",
+        "question": "What does an AI RMF Current Profile describe?",
+        "references": [
+            "indicates how AI is currently being managed"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q22",
+        "question": "Why is GOVERN described as a cross-cutting function?",
+        "references": [
+            "a cross-cutting function that is infused throughout AI risk management"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q23",
+        "question": "How do the MAP function's outcomes relate to MEASURE and MANAGE?",
+        "references": [
+            "the basis for the MEASURE and MANAGE functions"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q24",
+        "question": "What is risk tolerance?",
+        "references": [
+            "readiness to bear the risk in order to achieve its objectives"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q25",
+        "question": "Does the AI RMF prescribe a level of risk tolerance?",
+        "references": [
+            "it does not prescribe risk tolerance"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q26",
+        "question": "What is residual risk?",
+        "references": [
+            "risk remaining after risk treatment"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q27",
+        "question": "Who are AI actors?",
+        "references": [
+            "those who play an active role in the AI system lifecycle"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q28",
+        "question": "What are the key dimensions of an AI system in the framework?",
+        "references": [
+            "Application Context, Data and Input, AI Model, and Task and Output"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q29",
+        "question": "Why do AI systems need a dedicated risk framework rather than existing software ones?",
+        "references": [
+            "not comprehensively addressed by current risk frameworks"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q30",
+        "question": "What attributes did NIST intend the AI RMF to have?",
+        "references": [
+            "risk-based, resource-efficient, pro-innovation, and voluntary"
+        ],
+        "answerable": true
+    },
+    {
+        "id": "q31",
         "question": "What is the capital of France?",
         "references": [],
         "answerable": false
     },
     {
-        "id": "q15",
+        "id": "q32",
         "question": "What risk tiers does the EU AI Act define?",
+        "references": [],
+        "answerable": false
+    },
+    {
+        "id": "q33",
+        "question": "What penalties does the AI RMF impose for non-compliance?",
+        "references": [],
+        "answerable": false
+    },
+    {
+        "id": "q34",
+        "question": "Which specific AI models does NIST recommend using?",
+        "references": [],
+        "answerable": false
+    },
+    {
+        "id": "q35",
+        "question": "How does GDPR define personal data?",
         "references": [],
         "answerable": false
     }
