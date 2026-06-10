@@ -109,18 +109,19 @@ streamlit run app.py
 
 ## Evaluation and retrieval quality
 
-PaperTrail includes a small, no-LLM evaluation harness (`evaluate.py` plus `eval_set.json`) that measures retrieval against a hand-labeled set of questions drawn from the NIST AI RMF. Each question carries verbatim reference phrases from its source passage; a retrieval counts as a hit when a retrieved chunk contains one. The harness reports Recall@3, Recall@6, and Mean Reciprocal Rank over the answerable questions, which turns retrieval changes into measured results rather than guesses.
+PaperTrail includes a small, no-LLM evaluation harness (`evaluate.py` plus `eval_set.json`) that measures retrieval against 30 hand-labeled questions drawn from the NIST AI RMF. Each question carries verbatim reference phrases from its source passage; a retrieval counts as a hit when a retrieved chunk contains one. The harness reports Recall@3, Recall@6, and Mean Reciprocal Rank over the answerable questions, which turns retrieval changes into measured results rather than guesses.
 
-Stripping repeated page boilerplate (running headers, page markers, the publication notice) before chunking is the change that earned its place:
+Two changes earned their place in the pipeline this way. Stripping repeated page boilerplate (running headers, page markers, the publication notice) before chunking removed noise that was diluting chunk embeddings. Then retrieval was made two-stage: vector search fetches a wide candidate pool, and a cross-encoderreranker (`ms-marco-MiniLM-L-6-v2`) reorders it and returns the top results.
+Reranking is the larger win:
 
-| Metric   | Before | After |
-| -------- | ------ | ----- |
-| Recall@3 | 0.62   | 0.69  |
-| Recall@6 | 0.77   | 0.85  |
-| MRR      | 0.618  | 0.599 |
+| Metric   | Vector only | + Reranking |
+| -------- | ----------- | ----------- |
+| Recall@3 | 0.70        | 0.80        |
+| Recall@6 | 0.83        | 0.87        |
+| MRR      | 0.602       | 0.732       |
 
-Recall improved at both cutoffs. MRR dipped slightly as a couple of top hits shifted a position, an acceptable trade since Recall@6 is the cutoff actually fed to the model.
+(Measured on the 30-question set, with boilerplate stripping applied to both columns.)
 
-Three other levers were tested with the same harness and rejected on the evidence: a stronger embedding model and a cross-encoder reranker were both washes on the aggregates, and uniformly smaller chunks regressed recall by fragmenting passages that already retrieved well.
+Other levers were tested with the same harness and rejected on the evidence: a stronger embedding model was a wash, and uniformly smaller chunks regressed recall by fragmenting passages that already retrieved well. Reranking itself only paid off after a first-stage diagnostic showed the remaining misses were sitting just outside the retrieval window rather than being unretrievable, which is what motivated widening the candidate net before reranking.
 
-Known limitations: two questions still miss. One asks for the trustworthy-AI characteristics list, whose chunk competes with the seven individual characteristic subsections; the other sits just outside the retrieval window and needs a wider net. Diagnostics traced both to first-stage recall, which points to section-aware chunking and a larger evaluation set as the next steps, rather than further global tuning.
+Two questions still miss. One asks for the trustworthy-AI characteristics list, whose passage sits too deep in first-stage retrieval (around rank 33) for even the wide net to surface, since it competes with the seven individual characteristic subsections. The other is a question the reranker itself demotes, an artifact of a cross-encoder trained on web search rather than policy prose. The natural next steps are section-aware chunking and a reranker better matched to the domain.
