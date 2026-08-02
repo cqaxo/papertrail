@@ -127,6 +127,8 @@ Two changes earned their place in the pipeline this way. Stripping repeated page
 
 Other levers were tested with the same harness and rejected on the evidence: a stronger embedding model was a wash, and uniformly smaller chunks regressed recall by fragmenting passages that already retrieved well. Reranking itself only paid off after a first-stage diagnostic showed the remaining misses were sitting just outside the retrieval window rather than being unretrievable, which is what motivated widening the candidate net before reranking.
 
+For a longer discussion of why the first evaluation set was too small to detect the reranking effect, see [docs/evaluation-composition.md](docs/evaluation-composition.md).
+
 ### Auditing that result
 
 The table above is the headline, and it is accurate. It is also worth knowing what it hides. Two scripts in this repo re-examine the reranking decision after the fact: `evaluate_30_board.py` produces a per-question rank board with reranking on and off, and `evaluate_pinning.py` sweeps an alternative retrieval strategy. Three findings came out of them.
