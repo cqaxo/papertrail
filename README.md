@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/logo.png" alt="PaperTrail logo" width="250">
+</p>
+
 # PaperTrail
 
 A local "chat with your documents" app. Ask questions about a set of PDFs and get answers grounded in the source text, with citations back to the exact chunks each answer came from, and an honest "I don't know" when the documents do not cover the question.
@@ -111,8 +115,7 @@ streamlit run app.py
 
 PaperTrail includes a small, no-LLM evaluation harness (`evaluate.py` plus `eval_set.json`) that measures retrieval against 30 hand-labeled questions drawn from the NIST AI RMF. Each question carries verbatim reference phrases from its source passage; a retrieval counts as a hit when a retrieved chunk contains one. The harness reports Recall@3, Recall@6, and Mean Reciprocal Rank over the answerable questions, which turns retrieval changes into measured results rather than guesses.
 
-Two changes earned their place in the pipeline this way. Stripping repeated page boilerplate (running headers, page markers, the publication notice) before chunking removed noise that was diluting chunk embeddings. Then retrieval was made two-stage: vector search fetches a wide candidate pool, and a cross-encoderreranker (`ms-marco-MiniLM-L-6-v2`) reorders it and returns the top results.
-Reranking is the larger win:
+Two changes earned their place in the pipeline this way. Stripping repeated page boilerplate (running headers, page markers, the publication notice) before chunking removed noise that was diluting chunk embeddings. Then retrieval was made two-stage: vector search fetches a wide candidate pool, and a cross-encoder reranker (`ms-marco-MiniLM-L-6-v2`) reorders it and returns the top results. Reranking is the larger win:
 
 | Metric   | Vector only | + Reranking |
 | -------- | ----------- | ----------- |
@@ -124,4 +127,41 @@ Reranking is the larger win:
 
 Other levers were tested with the same harness and rejected on the evidence: a stronger embedding model was a wash, and uniformly smaller chunks regressed recall by fragmenting passages that already retrieved well. Reranking itself only paid off after a first-stage diagnostic showed the remaining misses were sitting just outside the retrieval window rather than being unretrievable, which is what motivated widening the candidate net before reranking.
 
-Two questions still miss. One asks for the trustworthy-AI characteristics list, whose passage sits too deep in first-stage retrieval (around rank 33) for even the wide net to surface, since it competes with the seven individual characteristic subsections. The other is a question the reranker itself demotes, an artifact of a cross-encoder trained on web search rather than policy prose. The natural next steps are section-aware chunking and a reranker better matched to the domain.
+### Auditing that result
+
+The table above is the headline, and it is accurate. It is also worth knowing what it hides. Two scripts in this repo re-examine the reranking decision after the fact: `evaluate_30_board.py` produces a per-question rank board with reranking on and off, and `evaluate_pinning.py` sweeps an alternative retrieval strategy. Three findings came out of them.
+
+**The gain is not uniform.** Reranking promotes six questions, three of them from a miss to a top-3 hit, and demotes five that plain vector search had already ranked well. One of those five falls out of the top 10 entirely. That is the signature of a cross-encoder trained on web-search relevance rather than policy prose: strongest on paraphrased and conceptual queries, and capable of being actively wrong where lexical overlap had already done the job.
+
+**The gain is concentrated in questions added late.** The eval set grew from 13 questions to 30 shortly before reranking was adopted. Split along that boundary:
+
+| Group       | Recall@3 (vector only) | Recall@3 (+ reranking) |
+| ----------- | ---------------------- | ---------------------- |
+| Original 13 | 0.69                   | 0.62                   |
+| Added 17    | 0.71                   | 0.94                   |
+
+On the 17 later questions, reranking also lifts Recall@6 to 1.00. On the original 13, it is a recall regression. The aggregate improvement therefore rests entirely on the later questions.
+
+Notably, the two groups are equally difficult for first-stage retrieval (Recall@3 0.69 against 0.71, and near-identical rank-1 hit rates), so the divergence is not explained by the later questions being easier or harder to retrieve. It is something about how the cross-encoder responds to them. The original set skews toward Core-function lookups where the query term appears verbatim in the target passage, and the later set skews relational, which is a plausible mechanism but not a clean one, since at least one Core-function question is among those reranking fixed. With five regressions across 30 questions, this data cannot resolve it.
+
+**Some of the gain is fitted to the ruler.** The candidate-net width was chosen from a diagnostic run on the same expanded set that was then used to score it. Combined with the point above, this means the harness built to stop retrieval changes from being guesses had quietly become something the changes were tuned against. The improvement is real on the best ruler available here, and an unknown part of it belongs to the ruler.
+
+### Known limitations
+
+Two questions miss under the current pipeline. One asks for the trustworthy-AI characteristics list, whose passage sits too deep in first-stage retrieval (around rank 33) for even the wide net to surface, since it competes with the seven individual characteristic subsections. The other is a question the reranker itself demotes from a top-3 hit to a miss, one of the five regressions described above.
+
+Retrieval is measured; answer quality is not. The harness scores whether the right passage was retrieved, not whether the generated answer is faithful to it. The eval set carries five deliberately out-of-scope questions as seeds for that layer, but faithfulness and refusal metrics are not implemented.
+
+### Measured but not adopted
+
+Reserving the top first-stage slots from reranker demotion ("pinning") scores better on recall than the current pipeline: Recall@3 0.87 and Recall@6 0.93 with two reserved slots, against 0.80 and 0.87 today. It recovers four of the five regressions while keeping every reranker promotion inside the top 3.
+
+It is recorded rather than shipped, for two reasons. The setting was selected from a sweep over the same 30 questions it was scored against, which is the fitting problem described above rather than a fix for it. And the accompanying drop in MRR is structural rather than a retrieval regression: reserving the first N slots caps promoted passages at rank N+1, so questions the reranker rescues land at rank 3 instead of rank 1 by construction.
+
+### Next steps
+
+- **Reciprocal rank fusion** as the principled version of pinning, blending the first-stage and reranked orderings by rank so a passage both stages favor can still reach rank 1.
+- **A held-out or expanded eval set** before adopting any further tuned hyperparameter, so the next change is measured against something it was not selected on.
+- **Section-aware chunking** for the deep miss, whose passage is currently fragmented across subsection boundaries.
+- **A domain-matched reranker**, since the regressions trace to a cross-encoder trained on web-search relevance.
+- **An answer-quality layer** measuring faithfulness and refusal against the out-of-scope questions.
