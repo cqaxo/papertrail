@@ -127,7 +127,7 @@ Two changes earned their place in the pipeline this way. Stripping repeated page
 
 Other levers were tested with the same harness and rejected on the evidence: a stronger embedding model was a wash, and uniformly smaller chunks regressed recall by fragmenting passages that already retrieved well. Reranking itself only paid off after a first-stage diagnostic showed the remaining misses were sitting just outside the retrieval window rather than being unretrievable, which is what motivated widening the candidate net before reranking.
 
-For a longer discussion of why the first evaluation set was too small to detect the reranking effect, see [docs/evaluation-composition.md](docs/evaluation-composition.md).
+For an analysis of why cross-encoder reranking improves aggregate retrieval metrics while regressing on the original evaluation questions, see [docs/evaluation-composition.md](docs/evaluation-composition.md).
 
 ### Auditing that result
 
