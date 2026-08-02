@@ -127,8 +127,6 @@ Two changes earned their place in the pipeline this way. Stripping repeated page
 
 Other levers were tested with the same harness and rejected on the evidence: a stronger embedding model was a wash, and uniformly smaller chunks regressed recall by fragmenting passages that already retrieved well. Reranking itself only paid off after a first-stage diagnostic showed the remaining misses were sitting just outside the retrieval window rather than being unretrievable, which is what motivated widening the candidate net before reranking.
 
-For an analysis of why cross-encoder reranking improves aggregate retrieval metrics while regressing on the original evaluation questions, see [docs/evaluation-composition.md](docs/evaluation-composition.md).
-
 ### Auditing that result
 
 The table above is the headline, and it is accurate. It is also worth knowing what it hides. Two scripts in this repo re-examine the reranking decision after the fact: `evaluate_30_board.py` produces a per-question rank board with reranking on and off, and `evaluate_pinning.py` sweeps an alternative retrieval strategy. Three findings came out of them.
@@ -147,6 +145,8 @@ On the 17 later questions, reranking also lifts Recall@6 to 1.00. On the origina
 Notably, the two groups are equally difficult for first-stage retrieval (Recall@3 0.69 against 0.71, and near-identical rank-1 hit rates), so the divergence is not explained by the later questions being easier or harder to retrieve. It is something about how the cross-encoder responds to them. The original set skews toward Core-function lookups where the query term appears verbatim in the target passage, and the later set skews relational, which is a plausible mechanism but not a clean one, since at least one Core-function question is among those reranking fixed. With five regressions across 30 questions, this data cannot resolve it.
 
 **Some of the gain is fitted to the ruler.** The candidate-net width was chosen from a diagnostic run on the same expanded set that was then used to score it. Combined with the point above, this means the harness built to stop retrieval changes from being guesses had quietly become something the changes were tuned against. The improvement is real on the best ruler available here, and an unknown part of it belongs to the ruler.
+
+For a longer discussion of how this was found and what it changed, see [docs/evaluation-composition.md](docs/evaluation-composition.md).
 
 ### Known limitations
 
